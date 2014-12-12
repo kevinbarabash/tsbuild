@@ -16,7 +16,7 @@ function build(filename, srcDir, libDir, distDir, standalone) {
         "--declaration"
     ];
 
-    var tsc = spawn("./node_modules/.bin/tsc", args);
+    var tsc = spawn(__dirname + "/node_modules/.bin/tsc", args);
 
     var b = null;
     var options = {
@@ -35,15 +35,15 @@ function build(filename, srcDir, libDir, distDir, standalone) {
             var browserifyStart = Date.now();
 
             if (b === null) {
-                b = browserify(__dirname + "/" + libDir + "/" + filename.replace(".ts", ".js"), options);
+                b = browserify(libDir + "/" + filename.replace(".ts", ".js"), options);
             }
 
-            mkdirp(__dirname + "/test/dist", function(err) {
+            mkdirp(distDir, function(err) {
                 if (err) {
                     console.log("couldn't created the folder");
                     process.exit();
                 } else {
-                    var writable = fs.createWriteStream(__dirname + "/" + distDir + "/" + filename.replace(".ts", ".js"));
+                    var writable = fs.createWriteStream(distDir + "/" + filename.replace(".ts", ".js"));
                     b.bundle().pipe(writable);
                     console.log("browserify time = " + (Date.now() - browserifyStart));
                 }
