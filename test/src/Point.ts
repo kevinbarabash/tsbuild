@@ -7,15 +7,27 @@ class Point {
         this.y = y;
     }
 
-    mul(s: number) {
-        this.x *= s;
-        this.y *= s;
+    mul(scalar: number) {
+        this.x *= scalar;
+        this.y *= scalar;
         return this;
     }
 
-    add(other: Point) {
-        this.x += other.x;
-        this.y += other.y;
+    div(scalar: number) {
+        this.x /= scalar;
+        this.y /= scalar;
+        return this;
+    }
+
+    add(p: Point) {
+        this.x += p.x;
+        this.y += p.y;
+        return this;
+    }
+
+    sub(other: Point) {
+        this.x -= other.x;
+        this.y -= other.y;
         return this;
     }
 }

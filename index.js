@@ -1,48 +1,59 @@
-//var browserify = require("browserify");
-var watchify = require("watchify");
+var browserify = require("browserify");
 var fs = require('fs');
 var spawn = require("child_process").spawn;
+var mkdirp = require("mkdirp");
 
-var args = [
-    "--target", "ES5",
-    "--removeComments",
-    "--module", "commonjs",
-    "--outDir", "test/lib",
-    "test/src/Point.ts",
-    "--watch",
-    "--declaration"
-];
+function build(filename, srcDir, libDir, distDir, standalone) {
+    var compileStart = Date.now();
 
-var tsc = spawn("./node_modules/.bin/tsc", args);
-var first = true;
+    var args = [
+        "--target", "ES5",
+        "--removeComments",
+        "--module", "commonjs",
+        "--outDir", libDir,
+        srcDir + "/" + filename,
+        "--watch",
+        "--declaration"
+    ];
 
-tsc.stdout.on('data', function (data) {
-    console.log("tsc: " + data);
+    var tsc = spawn("./node_modules/.bin/tsc", args);
 
-    if (first) {
-        first = false;
-    }
-});
+    var b = null;
+    var options = {
+        cache: {},
+        packageCache: {},
+        fullPaths: true,
+        standalone: standalone
+    };
 
-var options = {
-    cache: {},
-    packageCache: {},
-    //fullPaths: true,
-    standalone: "Point"
-};
+    tsc.stdout.on('data', function (data) {
+        data = data.toString();
+        process.stdout.write(data);
 
-var b = browserify(__dirname + "/test/lib/Point.js", options);
-var w = watchify(b);
+        if (data.indexOf("TS6042") !== -1) {
+            console.log("compile time = " + (Date.now() - compileStart));
+            var browserifyStart = Date.now();
 
-w.on('update', function (ids) {
-    var writable = fs.createWriteStream(__dirname + "/test/dist/Point.js");
-    w.bundle().pipe(writable);
-});
+            if (b === null) {
+                b = browserify(__dirname + "/" + libDir + "/" + filename.replace(".ts", ".js"), options);
+            }
 
-w.on('time', function (time) {
-    console.log("build took " + time + "ms");
-});
+            mkdirp(__dirname + "/test/dist", function(err) {
+                if (err) {
+                    console.log("couldn't created the folder");
+                    process.exit();
+                } else {
+                    var writable = fs.createWriteStream(__dirname + "/" + distDir + "/" + filename.replace(".ts", ".js"));
+                    b.bundle().pipe(writable);
+                    console.log("browserify time = " + (Date.now() - browserifyStart));
+                }
+            });
+        }
 
-w.on('log', function (msg) {
-    console.log("log: " + msg);
-});
+        if (data.indexOf("TS6032") !== -1) {
+            compileStart = Date.now();
+        }
+    });
+}
+
+module.exports = build;
