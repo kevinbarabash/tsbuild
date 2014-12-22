@@ -22,7 +22,7 @@ function build(filename, srcDir, libDir, distDir, standalone) {
     var options = {
         cache: {},
         packageCache: {},
-        fullPaths: true,
+        fullPaths: false,
         standalone: standalone
     };
 
