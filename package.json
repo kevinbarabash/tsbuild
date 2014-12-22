@@ -1,6 +1,6 @@
 {
   "name": "tsbuild",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "easier TypeScript builds",
   "main": "index.js",
   "scripts": {
