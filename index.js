@@ -4,6 +4,11 @@ var spawn = require("child_process").spawn;
 var mkdirp = require("mkdirp");
 
 function build(filename, srcDir, libDir, distDir, standalone) {
+    if (arguments.length === 1 && typeof arguments[0] === "object") {
+        var options = arguments[0];
+        build(options.filename, options.srcDir, options.libDir, options.distDir, options.standalone);
+    }
+    
     var compileStart = Date.now();
 
     var args = [
