@@ -7,6 +7,7 @@ function build(filename, srcDir, libDir, distDir, standalone) {
     if (arguments.length === 1 && typeof arguments[0] === "object") {
         var options = arguments[0];
         build(options.filename, options.srcDir, options.libDir, options.distDir, options.standalone);
+        return;
     }
     
     var compileStart = Date.now();
